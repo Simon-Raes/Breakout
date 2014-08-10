@@ -1,5 +1,6 @@
 package be.simonraes.breakout.input;
 
+import be.simonraes.breakout.screen.GameScreen;
 import be.simonraes.breakout.world.GameWorld;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
@@ -11,9 +12,13 @@ public class InputHandler implements InputProcessor {
 
     private GameWorld world;
     private boolean leftPressed, rightPressed;
+    private float scaleFactorX;
+    private float scaleFactorY;
 
-    public InputHandler(GameWorld world) {
+    public InputHandler(GameWorld world, float scaleFactorX, float scaleFactorY) {
         this.world = world;
+        this.scaleFactorX = scaleFactorX;
+        this.scaleFactorY = scaleFactorY;
     }
 
     public void update() {
@@ -38,9 +43,12 @@ public class InputHandler implements InputProcessor {
                 return true;
 
             case Input.Keys.SPACE:
-                if(world.getGameState() == GameWorld.GameState.RUNNING){
+                if (world.getGameState() == GameWorld.GameState.READYFORLAUNCH) {
+                    world.setGameState(GameWorld.GameState.RUNNING);
                     world.getBall().launch();
-                } else if(world.getGameState() == GameWorld.GameState.GAMEOVER){
+                } else if (world.getGameState() == GameWorld.GameState.LEVELCOMPLETE) {
+                    world.startNextLevel();
+                } else if (world.getGameState() == GameWorld.GameState.GAMEOVER) {
                     world.restart();
                 }
 
@@ -69,12 +77,52 @@ public class InputHandler implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+
+        System.out.println("touch at " + screenX);
+
+
+        screenX = scaleX(screenX);
+        screenY = scaleY(screenY);
+
+        System.out.println("scaled touch point " + screenX);
+        System.out.println("gameWidth " + GameScreen.gameWidth);
+        System.out.println("screenwidht" + GameScreen.screenWidth);
+
+        if (world.getGameState() == GameWorld.GameState.READYFORLAUNCH) {
+            world.setGameState(GameWorld.GameState.RUNNING);
+            world.getBall().launch();
+        } else if (world.getGameState() == GameWorld.GameState.LEVELCOMPLETE) {
+            world.startNextLevel();
+        } else if (world.getGameState() == GameWorld.GameState.GAMEOVER) {
+            world.restart();
+        } else if (world.getGameState() == GameWorld.GameState.RUNNING) {
+            if (screenX < GameScreen.gameWidth / 2) {
+                leftPressed = true;
+                return true;
+            } else {
+                rightPressed = true;
+                return true;
+            }
+        }
+
         return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
+
+        screenX = scaleX(screenX);
+        screenY = scaleY(screenY);
+
+        if (screenX < GameScreen.gameWidth / 2) {
+            leftPressed = false;
+            return true;
+        } else {
+            rightPressed = false;
+            return true;
+        }
+
+//        return false;
     }
 
     @Override
@@ -90,5 +138,13 @@ public class InputHandler implements InputProcessor {
     @Override
     public boolean scrolled(int amount) {
         return false;
+    }
+
+    private int scaleX(int screenX) {
+        return (int) (screenX / scaleFactorX);
+    }
+
+    private int scaleY(int screenY) {
+        return (int) (screenY / scaleFactorY);
     }
 }

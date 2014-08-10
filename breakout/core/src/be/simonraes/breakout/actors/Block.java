@@ -4,24 +4,29 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 /**
- * Created by Simon Raes on 8/08/2014.
+ * Created by Simon Raes on 10/08/2014.
  */
-public class Block {
+public abstract class Block {
+    protected Vector2 position;
+    protected int width, height;
+    protected int hitPoints;
 
-    private Vector2 position;
-    private int width, height;
-
-    private boolean isAlive;
+    protected boolean isAlive;
 
     public Block(float xPosition, float yPosition, int width, int height){
         position = new Vector2(xPosition, yPosition);
         this.width = width;
         this.height = height;
         isAlive = true;
+
+        hitPoints = 1;
     }
 
-    public void destroy(){
-        isAlive = false;
+    public void hit(){
+        hitPoints--;
+        if(hitPoints<=0){
+            isAlive = false;
+        }
     }
 
     public float getX(){
@@ -46,5 +51,9 @@ public class Block {
 
     public Rectangle getRectangle() {
         return new Rectangle(position.x, position.y, width, height);
+    }
+
+    public int getHitPoints() {
+        return hitPoints;
     }
 }

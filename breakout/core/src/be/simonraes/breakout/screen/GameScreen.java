@@ -23,7 +23,7 @@ public class GameScreen implements Screen {
         gameHeight = screenHeight / (screenWidth / gameWidth);
         world = new GameWorld();
         renderer = new Renderer(world);
-        inputHandler = new InputHandler(world);
+        inputHandler = new InputHandler(world,screenWidth / gameWidth, screenHeight / gameHeight);
         Gdx.input.setInputProcessor(inputHandler);
     }
 
