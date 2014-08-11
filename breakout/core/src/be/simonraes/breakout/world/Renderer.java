@@ -1,8 +1,9 @@
 package be.simonraes.breakout.world;
 
-import be.simonraes.breakout.actors.BasicBlock;
-import be.simonraes.breakout.actors.Block;
-import be.simonraes.breakout.actors.StrongBlock;
+import be.simonraes.breakout.actors.Ball;
+import be.simonraes.breakout.block.BasicBlock;
+import be.simonraes.breakout.block.Block;
+import be.simonraes.breakout.block.StrongBlock;
 import be.simonraes.breakout.powerup.Powerup;
 import be.simonraes.breakout.screen.GameScreen;
 import be.simonraes.breakout.util.AssetLoader;
@@ -55,7 +56,7 @@ public class Renderer {
             drawLevelWon();
         }
 
-        if (world.getGameState() == GameWorld.GameState.GAMEOVER) {
+        if (world.getGameState() == GameWorld.GameState.LIFEOVER) {
             drawGameOver();
         } else {
             drawGamePlay();
@@ -120,18 +121,31 @@ public class Renderer {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
         // Render powerups
-        shapeRenderer.setColor(Color.ORANGE);
-        for (Powerup p : world.getPowerups()) {
+        for (Powerup p : world.getFallingPowerUps()) {
+            switch (p.getPowerUpEffect()) {
+                case FLAMEBALL:
+                    shapeRenderer.setColor(Color.ORANGE);
+                    break;
+                case EXTRABALL:
+                    shapeRenderer.setColor(Color.PURPLE);
+                    break;
+                default:
+                    shapeRenderer.setColor(Color.ORANGE);
+                    break;
+            }
             shapeRenderer.circle(p.getPosition().x, p.getPosition().y, p.getRadius());
         }
 
         // Render ball
-        if(world.getBall().getActiveEffects().containsKey(Powerup.PowerUpEffect.FLAMEBALL)){
-            shapeRenderer.setColor(Color.ORANGE);
-        } else {
-            shapeRenderer.setColor(Color.CYAN);
+        for (Ball ball : world.getBalls()) {
+            if (ball.getActiveEffects().containsKey(Powerup.PowerUpEffect.FLAMEBALL)) {
+                shapeRenderer.setColor(Color.ORANGE);
+            } else {
+                shapeRenderer.setColor(Color.CYAN);
+            }
+            shapeRenderer.circle(ball.getX(), ball.getY(), ball.getRadius());
         }
-        shapeRenderer.circle(world.getBall().getX(), world.getBall().getY(), world.getBall().getRadius());
+
 
         // Render paddle
         shapeRenderer.setColor(Color.GREEN);

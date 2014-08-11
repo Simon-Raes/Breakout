@@ -1,4 +1,4 @@
-package be.simonraes.breakout.actors;
+package be.simonraes.breakout.block;
 
 import be.simonraes.breakout.powerup.Powerup;
 

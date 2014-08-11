@@ -1,5 +1,6 @@
 package be.simonraes.breakout.input;
 
+import be.simonraes.breakout.actors.Ball;
 import be.simonraes.breakout.screen.GameScreen;
 import be.simonraes.breakout.world.GameWorld;
 import com.badlogic.gdx.Input;
@@ -46,10 +47,12 @@ public class InputHandler implements InputProcessor {
             case Input.Keys.SPACE:
                 if (world.getGameState() == GameWorld.GameState.READYFORLAUNCH) {
                     world.setGameState(GameWorld.GameState.RUNNING);
-                    world.getBall().launch();
+                    for(Ball ball : world.getBalls()){
+                        ball.launch();
+                    }
                 } else if (world.getGameState() == GameWorld.GameState.LEVELCOMPLETE) {
                     world.startNextLevel();
-                } else if (world.getGameState() == GameWorld.GameState.GAMEOVER) {
+                } else if (world.getGameState() == GameWorld.GameState.LIFEOVER) {
                     world.restart();
                 }
 
@@ -98,14 +101,15 @@ public class InputHandler implements InputProcessor {
             System.out.println(leftPressed+" "+rightPressed);
             if(leftPressed && rightPressed){
                 world.setGameState(GameWorld.GameState.RUNNING);
-                world.getBall().launch();
-            }
+                for(Ball ball : world.getBalls()){
+                    ball.launch();
+                }            }
 
         } else if (world.getGameState() == GameWorld.GameState.LEVELCOMPLETE) {
             System.out.println("level complete");
 
             world.startNextLevel();
-        } else if (world.getGameState() == GameWorld.GameState.GAMEOVER) {
+        } else if (world.getGameState() == GameWorld.GameState.LIFEOVER) {
             System.out.println("game over");
 
             world.restart();

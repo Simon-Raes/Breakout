@@ -1,5 +1,6 @@
 package be.simonraes.breakout.actors;
 
+import be.simonraes.breakout.block.Block;
 import be.simonraes.breakout.powerup.Powerup;
 import be.simonraes.breakout.screen.GameScreen;
 import com.badlogic.gdx.math.Circle;
@@ -59,7 +60,9 @@ public class Ball {
             if (entry.getValue() <= 0) {
                 activeEffects.remove(entry.getKey());
             } else {
-                entry.setValue(entry.getValue() - delta);
+                if(entry.getValue()!=-1){
+                    entry.setValue(entry.getValue() - delta);
+                }
             }
         }
 

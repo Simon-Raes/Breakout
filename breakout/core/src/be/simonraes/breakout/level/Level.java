@@ -1,8 +1,8 @@
 package be.simonraes.breakout.level;
 
-import be.simonraes.breakout.actors.BasicBlock;
-import be.simonraes.breakout.actors.Block;
-import be.simonraes.breakout.actors.StrongBlock;
+import be.simonraes.breakout.block.BasicBlock;
+import be.simonraes.breakout.block.Block;
+import be.simonraes.breakout.block.StrongBlock;
 import be.simonraes.breakout.screen.GameScreen;
 
 import java.util.ArrayList;
@@ -20,8 +20,7 @@ public abstract class Level {
     private final int BLOCK_TOP_PADDING = 15;
     private final int BLOCK_VERTICAL_PADDING = 2;
 
-    private int totalBlocks;
-//    private int aliveBlocks;
+    private int numberOfBlocksInLevel;
 
     public void createBlocks() {
         blockObjects = new ArrayList<Block>();
@@ -48,7 +47,7 @@ public abstract class Level {
                 xPos, yPos,
                 BLOCK_WIDTH,
                 BLOCK_HEIGHT));
-        totalBlocks++;
+        numberOfBlocksInLevel++;
 //        aliveBlocks++;
     }
 
@@ -60,7 +59,7 @@ public abstract class Level {
                 xPos, yPos,
                 BLOCK_WIDTH,
                 BLOCK_HEIGHT));
-        totalBlocks++;
+        numberOfBlocksInLevel++;
 //        aliveBlocks++;
     }
 
@@ -79,8 +78,8 @@ public abstract class Level {
         return blockObjects;
     }
 
-    public int getTotalBlocks() {
-        return totalBlocks;
+    public int getNumberOfBlocksInLevel() {
+        return numberOfBlocksInLevel;
     }
 
     public int getAliveBlocks() {
@@ -88,14 +87,17 @@ public abstract class Level {
         for(Block b : blockObjects){
             if(b.isAlive()){
                 aliveBlocks ++;
-                break;
             }
-
         }
         return aliveBlocks;
     }
 
-//    public void setAliveBlocks(int aliveBlocks){
-//        this.aliveBlocks = aliveBlocks;
-//    }
+    public boolean hasAliveBlocks(){
+        for(Block b : blockObjects){
+            if(b.isAlive()){
+                return true;
+            }
+        }
+        return false;
+    }
 }

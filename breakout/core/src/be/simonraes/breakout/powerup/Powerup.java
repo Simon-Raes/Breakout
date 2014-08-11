@@ -15,12 +15,12 @@ public abstract class Powerup {
 
     protected PowerUpTarget powerUpTarget;
     public enum PowerUpTarget {
-        BALL, PADDLE
+        BALL, PADDLE, GAME
     }
 
     protected PowerUpEffect powerUpEffect;
     public enum PowerUpEffect {
-        FLAMEBALL
+        FLAMEBALL, EXTRABALL
     }
 
     public Powerup(float positionX, float positionY, float velocityX, float velocitY, PowerUpTarget target, PowerUpEffect effect, int effectDuration) {

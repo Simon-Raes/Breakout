@@ -106,5 +106,6 @@ public class Paddle {
     }
 
     public void applyPowerUp(Powerup p) {
+
     }
 }

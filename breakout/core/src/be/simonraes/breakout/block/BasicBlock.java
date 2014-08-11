@@ -1,4 +1,4 @@
-package be.simonraes.breakout.actors;
+package be.simonraes.breakout.block;
 
 import be.simonraes.breakout.powerup.Powerup;
 
@@ -15,6 +15,7 @@ public class BasicBlock extends Block {
     @Override
     protected void setPowerups() {
         containedPowerups.put(Powerup.PowerUpEffect.FLAMEBALL, 10);
+        containedPowerups.put(Powerup.PowerUpEffect.EXTRABALL, 5);
     }
 
 

@@ -1,4 +1,4 @@
-package be.simonraes.breakout.actors;
+package be.simonraes.breakout.block;
 
 import be.simonraes.breakout.powerup.Powerup;
 import com.badlogic.gdx.math.Rectangle;
@@ -49,11 +49,11 @@ public abstract class Block {
 
     private Powerup.PowerUpEffect getSpawnedPowerUp() {
         Random random = new Random();
-        int pValue = random.nextInt(100) + 1;
+        int randomValue = random.nextInt(100) + 1;
         for (Map.Entry<Powerup.PowerUpEffect, Integer> entry : containedPowerups.entrySet()) {
 
-            pValue -= entry.getValue();
-            if (pValue <= 0) {
+            randomValue -= entry.getValue();
+            if (randomValue <= 0) {
                 return entry.getKey();
             }
         }
