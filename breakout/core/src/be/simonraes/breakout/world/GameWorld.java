@@ -8,6 +8,7 @@ import be.simonraes.breakout.level.Level;
 import be.simonraes.breakout.level.Level1;
 import be.simonraes.breakout.level.Level2;
 import be.simonraes.breakout.powerup.ExtraBall;
+import be.simonraes.breakout.powerup.ExtraLife;
 import be.simonraes.breakout.powerup.FlameBall;
 import be.simonraes.breakout.powerup.Powerup;
 import be.simonraes.breakout.screen.GameScreen;
@@ -197,6 +198,9 @@ public class GameWorld {
                 case EXTRABALL:
                     fallingPowerUps.add(new ExtraBall(block.getX() + (block.getWidth() / 2), block.getY() + block.getHeight()));
                     break;
+                case EXTRALIFE:
+                    fallingPowerUps.add(new ExtraLife(block.getX() + (block.getWidth() / 2), block.getY() + block.getHeight()));
+                    break;
                 default:
                     break;
             }
@@ -223,7 +227,14 @@ public class GameWorld {
                 paddle.applyPowerUp(p);
                 break;
             case GAME:
-                balls.add(new Ball(paddle.getX() + (paddle.getWidth() / 2), paddle.getY(), BALL_RADIUS));
+                switch (p.getPowerUpEffect()) {
+                    case EXTRABALL:
+                        balls.add(new Ball(paddle.getX() + (paddle.getWidth() / 2), paddle.getY(), BALL_RADIUS));
+                        break;
+                    case EXTRALIFE:
+                        playerState.setLives(playerState.getLives() + 1);
+                        break;
+                }
                 break;
             default:
                 break;
@@ -244,7 +255,6 @@ public class GameWorld {
             restart();
         }
     }
-
 
 
     public void restart() {

@@ -60,7 +60,7 @@ public class Ball {
             if (entry.getValue() <= 0) {
                 activeEffects.remove(entry.getKey());
             } else {
-                if(entry.getValue()!=-1){
+                if(entry.getValue()!=-1){ // Don't reduce duration for -1 (=infinite duration).
                     entry.setValue(entry.getValue() - delta);
                 }
             }

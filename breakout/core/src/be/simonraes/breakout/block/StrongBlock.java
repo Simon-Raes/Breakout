@@ -14,6 +14,8 @@ public class StrongBlock extends Block {
 
     @Override
     protected void setPowerups() {
-        containedPowerups.put(Powerup.PowerUpEffect.FLAMEBALL, 15);
+        containedPowerups.put(Powerup.PowerUpEffect.FLAMEBALL, 10);
+        containedPowerups.put(Powerup.PowerUpEffect.EXTRALIFE, 3);
     }
+
 }

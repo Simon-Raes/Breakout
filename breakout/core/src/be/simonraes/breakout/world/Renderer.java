@@ -126,17 +126,7 @@ public class Renderer {
 
         // Render powerups
         for (Powerup p : world.getFallingPowerUps()) {
-            switch (p.getPowerUpEffect()) {
-                case FLAMEBALL:
-                    shapeRenderer.setColor(Color.ORANGE);
-                    break;
-                case EXTRABALL:
-                    shapeRenderer.setColor(Color.PURPLE);
-                    break;
-                default:
-                    shapeRenderer.setColor(Color.ORANGE);
-                    break;
-            }
+            shapeRenderer.setColor(p.getTexture());
             shapeRenderer.circle(p.getPosition().x, p.getPosition().y, p.getRadius());
         }
 

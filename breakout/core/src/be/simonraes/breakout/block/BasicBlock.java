@@ -14,9 +14,7 @@ public class BasicBlock extends Block {
 
     @Override
     protected void setPowerups() {
-        containedPowerups.put(Powerup.PowerUpEffect.FLAMEBALL, 10);
+        containedPowerups.put(Powerup.PowerUpEffect.FLAMEBALL, 5);
         containedPowerups.put(Powerup.PowerUpEffect.EXTRABALL, 5);
     }
-
-
 }
