@@ -13,10 +13,6 @@ public class InputHandler implements InputProcessor {
 
     private GameWorld world;
     private boolean leftPressed, rightPressed;
-//    private float scaleFactorX;
-//    private float scaleFactorY;
-
-    private float lastTouchDownX, lastTouchDownY;
 
     public InputHandler(GameWorld world) {
         this.world = world;
@@ -45,17 +41,8 @@ public class InputHandler implements InputProcessor {
                 return true;
 
             case Input.Keys.SPACE:
-                if (world.getGameState() == GameWorld.GameState.READYFORLAUNCH) {
-                    world.setGameState(GameWorld.GameState.RUNNING);
-                    for(Ball ball : world.getBalls()){
-                        ball.launch();
-                    }
-                } else if (world.getGameState() == GameWorld.GameState.LEVELCOMPLETE) {
-                    world.startNextLevel();
-                } else if (world.getGameState() == GameWorld.GameState.LIFEOVER) {
-                    world.restart();
-                }
-
+                world.launchCommand();
+                return true;
         }
         return false;
     }
@@ -82,42 +69,38 @@ public class InputHandler implements InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
-        lastTouchDownX = screenX;
-        lastTouchDownY = screenY;
-
-        // Todo: find a way to let user move paddle before launching (both use single touch now).
-
 
         if (screenX < GameScreen.screenWidth / 2) {
             leftPressed = true;
-//            return true;
         } else {
             rightPressed = true;
-//            return true;
         }
 
-        if (world.getGameState() == GameWorld.GameState.READYFORLAUNCH) {
-            System.out.println("ready for launch");
-            System.out.println(leftPressed+" "+rightPressed);
-            if(leftPressed && rightPressed){
-                world.setGameState(GameWorld.GameState.RUNNING);
-                for(Ball ball : world.getBalls()){
-                    ball.launch();
-                }            }
-
-        } else if (world.getGameState() == GameWorld.GameState.LEVELCOMPLETE) {
-            System.out.println("level complete");
-
-            world.startNextLevel();
-        } else if (world.getGameState() == GameWorld.GameState.LIFEOVER) {
-            System.out.println("game over");
-
-            world.restart();
+        if(leftPressed && rightPressed){
+            world.launchCommand();
         }
 
+//        if (world.getGameState() == GameWorld.GameState.READYFORLAUNCH) {
+//            System.out.println("ready for launch");
+//            System.out.println(leftPressed+" "+rightPressed);
+//            if(leftPressed && rightPressed){
+//                world.setGameState(GameWorld.GameState.RUNNING);
+//                for(Ball ball : world.getBalls()){
+//                    ball.launch();
+//                }            }
+//
+//        } else if (world.getGameState() == GameWorld.GameState.LEVELCOMPLETE) {
+//            System.out.println("level complete");
+//
+//            world.startNextLevel();
+//        } else if (world.getGameState() == GameWorld.GameState.LIFEOVER) {
+//            System.out.println("game over");
+//
+//            world.restart();
+//        }
 
 
-        return false;
+        return true;
     }
 
     @Override
@@ -136,7 +119,7 @@ public class InputHandler implements InputProcessor {
             return true;
         }
 
-        //return false;
+//        return false;
     }
 
     @Override

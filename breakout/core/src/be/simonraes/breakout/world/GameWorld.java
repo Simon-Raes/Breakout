@@ -1,8 +1,8 @@
 package be.simonraes.breakout.world;
 
 import be.simonraes.breakout.actors.Ball;
-import be.simonraes.breakout.block.Block;
 import be.simonraes.breakout.actors.Paddle;
+import be.simonraes.breakout.block.Block;
 import be.simonraes.breakout.game.PlayerState;
 import be.simonraes.breakout.level.Level;
 import be.simonraes.breakout.level.Level1;
@@ -30,11 +30,14 @@ public class GameWorld {
 
     private Level level;
 
-    private GameState gameState;
+
     private PlayerState playerState;
 
     private ArrayList<Powerup> fallingPowerUps;
     private ArrayList<Ball> balls;
+
+
+    private GameState gameState;
 
     public enum GameState {
         READYFORLAUNCH, // User can move paddle to choose launch location.
@@ -45,22 +48,21 @@ public class GameWorld {
     }
 
     public GameWorld() {
-        playerState = new PlayerState();
+        playerState = new PlayerState(1, 3);
         setupGame();
     }
 
     private void setupGame() {
-        initObjects();
+        setActors();
         setLevel();
     }
 
-    private void initObjects() {
+    private void setActors() {
         gameState = GameState.READYFORLAUNCH;
         fallingPowerUps = new ArrayList<Powerup>();
 
         paddle = new Paddle(136 / 2 - 10, GameScreen.gameHeight - 20, PADDLE_WIDTH, PADDLE_HEIGHT);
         balls = new ArrayList<Ball>();
-//        balls.add(new Ball(136 / 2, GameScreen.gameHeight - 20 - BALL_RADIUS, BALL_RADIUS));
     }
 
     private void setLevel() {
@@ -134,10 +136,18 @@ public class GameWorld {
 
         // Check number of alive balls
         if (balls.size() <= 0) {
-            gameState = GameState.READYFORLAUNCH;
+            // No more balls, take away 1 life.
+            playerState.setLives(playerState.getLives() - 1);
 
+            // Check if player has a life to play another round
+            if (playerState.getLives() <= 0) {
+                gameState = GameState.GAMEOVER;
+            } else {
+                gameState = GameState.READYFORLAUNCH;
+            }
         }
 
+        System.out.println(playerState.getLives());
 
         checkBallPaddleCollision();
         checkBallTargetsCollision();
@@ -169,26 +179,29 @@ public class GameWorld {
                 for (Ball ball : balls) {
                     if (Intersector.overlaps(ball.getCircle(), block.getRectangle())) {
                         ball.blockCollision(block);
-                        // Check if the hit block spawned a powerup.
-                        Powerup.PowerUpEffect spawnedPowerUp = block.hit();
-                        if (spawnedPowerUp != null) {
-                            switch (spawnedPowerUp) {
-                                case FLAMEBALL:
-                                    fallingPowerUps.add(new FlameBall(block.getX() + (block.getWidth() / 2), block.getY() + block.getHeight()));
-                                    break;
-                                case EXTRABALL:
-                                    fallingPowerUps.add(new ExtraBall(block.getX() + (block.getWidth() / 2), block.getY() + block.getHeight()));
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
+                        // Hit the block and check if it released a powerup.
+                        Powerup.PowerUpEffect effect = block.hit();
+                        addPowerUp(effect, block);
                     }
                 }
             }
         }
     }
 
+    private void addPowerUp(Powerup.PowerUpEffect spawnedPowerUp, Block block) {
+        if (spawnedPowerUp != null) {
+            switch (spawnedPowerUp) {
+                case FLAMEBALL:
+                    fallingPowerUps.add(new FlameBall(block.getX() + (block.getWidth() / 2), block.getY() + block.getHeight()));
+                    break;
+                case EXTRABALL:
+                    fallingPowerUps.add(new ExtraBall(block.getX() + (block.getWidth() / 2), block.getY() + block.getHeight()));
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 
     private void checkPaddlePowerupsCollision() {
         for (Powerup p : (ArrayList<Powerup>) fallingPowerUps.clone()) {
@@ -211,12 +224,28 @@ public class GameWorld {
                 break;
             case GAME:
                 balls.add(new Ball(paddle.getX() + (paddle.getWidth() / 2), paddle.getY(), BALL_RADIUS));
-
                 break;
             default:
                 break;
         }
     }
+
+    public void launchCommand() {
+        if (gameState == GameWorld.GameState.READYFORLAUNCH) {
+            gameState = GameWorld.GameState.RUNNING;
+            for (Ball ball : getBalls()) {
+                ball.launch();
+            }
+        } else if (gameState == GameWorld.GameState.LEVELCOMPLETE) {
+            startNextLevel();
+        } else if (gameState == GameWorld.GameState.LIFEOVER) {
+            restart();
+        } else if (gameState == GameState.GAMEOVER) {
+            restart();
+        }
+    }
+
+
 
     public void restart() {
         setupGame();
@@ -239,7 +268,7 @@ public class GameWorld {
     }
 
     public void startNextLevel() {
-        initObjects();
+        setActors();
         setLevel();
     }
 
@@ -249,5 +278,9 @@ public class GameWorld {
 
     public ArrayList<Powerup> getFallingPowerUps() {
         return fallingPowerUps;
+    }
+
+    public PlayerState getPlayerState() {
+        return playerState;
     }
 }

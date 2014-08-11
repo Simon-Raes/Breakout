@@ -6,9 +6,11 @@ package be.simonraes.breakout.game;
 public class PlayerState {
 
     private int currentLevel;
+    private int lives;
 
-    public PlayerState(){
-        currentLevel = 1;
+    public PlayerState(int level, int lives) {
+        this.currentLevel = level;
+        this.lives = lives;
     }
 
     public int getCurrentLevel() {
@@ -17,5 +19,13 @@ public class PlayerState {
 
     public void setCurrentLevel(int currentLevel) {
         this.currentLevel = currentLevel;
+    }
+
+    public int getLives() {
+        return lives;
+    }
+
+    public void setLives(int lives) {
+        this.lives = lives;
     }
 }

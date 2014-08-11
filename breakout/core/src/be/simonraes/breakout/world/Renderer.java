@@ -1,6 +1,7 @@
 package be.simonraes.breakout.world;
 
 import be.simonraes.breakout.actors.Ball;
+import be.simonraes.breakout.actors.Paddle;
 import be.simonraes.breakout.block.BasicBlock;
 import be.simonraes.breakout.block.Block;
 import be.simonraes.breakout.block.StrongBlock;
@@ -114,9 +115,12 @@ public class Renderer {
             font.draw(batcher, "Level complete!", 40, 20);
             font.draw(batcher, "+200 xp", 50, 40);
             font.draw(batcher, "Press space to continue", 30, 70);
+        } else if (world.getGameState() == GameWorld.GameState.GAMEOVER){
+            font.draw(batcher, "GAME OVER!", 40, 20);
+            font.draw(batcher, "Press space to restart", 30, 70);
         }
 
-        batcher.end();
+            batcher.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
@@ -146,11 +150,17 @@ public class Renderer {
             shapeRenderer.circle(ball.getX(), ball.getY(), ball.getRadius());
         }
 
-
         // Render paddle
-        shapeRenderer.setColor(Color.GREEN);
+        shapeRenderer.setColor(Color.DARK_GRAY);
         shapeRenderer.rect(world.getPaddle().getX(), world.getPaddle().getY(), world.getPaddle().getWidth(), world.getPaddle().getHeight());
 
+        // Render lives
+        int lives = world.getPlayerState().getLives() - 1;
+        shapeRenderer.setColor(Color.CYAN);
+
+        for(int i = 0;i<lives;i++){
+            shapeRenderer.circle(world.getPaddle().getX() + 3 + (i*5), world.getPaddle().getY() + (world.getPaddle().getHeight()/2), 2);
+        }
 
         shapeRenderer.end();
     }
