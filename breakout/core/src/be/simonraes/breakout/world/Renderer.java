@@ -3,6 +3,7 @@ package be.simonraes.breakout.world;
 import be.simonraes.breakout.actors.BasicBlock;
 import be.simonraes.breakout.actors.Block;
 import be.simonraes.breakout.actors.StrongBlock;
+import be.simonraes.breakout.powerup.Powerup;
 import be.simonraes.breakout.screen.GameScreen;
 import be.simonraes.breakout.util.AssetLoader;
 import com.badlogic.gdx.Gdx;
@@ -118,13 +119,24 @@ public class Renderer {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
+        // Render powerups
+        shapeRenderer.setColor(Color.ORANGE);
+        for (Powerup p : world.getPowerups()) {
+            shapeRenderer.circle(p.getPosition().x, p.getPosition().y, p.getRadius());
+        }
+
         // Render ball
-        shapeRenderer.setColor(Color.CYAN);
+        if(world.getBall().getActiveEffects().containsKey(Powerup.PowerUpEffect.FLAMEBALL)){
+            shapeRenderer.setColor(Color.ORANGE);
+        } else {
+            shapeRenderer.setColor(Color.CYAN);
+        }
         shapeRenderer.circle(world.getBall().getX(), world.getBall().getY(), world.getBall().getRadius());
 
         // Render paddle
         shapeRenderer.setColor(Color.GREEN);
         shapeRenderer.rect(world.getPaddle().getX(), world.getPaddle().getY(), world.getPaddle().getWidth(), world.getPaddle().getHeight());
+
 
         shapeRenderer.end();
     }

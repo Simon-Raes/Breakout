@@ -1,7 +1,6 @@
 package be.simonraes.breakout.actors;
 
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
+import be.simonraes.breakout.powerup.Powerup;
 
 /**
  * A basic block.
@@ -9,7 +8,14 @@ import com.badlogic.gdx.math.Vector2;
  */
 public class BasicBlock extends Block {
 
-    public BasicBlock(float xPosition, float yPosition, int width, int height){
+    public BasicBlock(float xPosition, float yPosition, int width, int height) {
         super(xPosition, yPosition, width, height);
     }
+
+    @Override
+    protected void setPowerups() {
+        containedPowerups.put(Powerup.PowerUpEffect.FLAMEBALL, 10);
+    }
+
+
 }

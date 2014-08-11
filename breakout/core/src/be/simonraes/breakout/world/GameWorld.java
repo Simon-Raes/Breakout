@@ -1,15 +1,18 @@
 package be.simonraes.breakout.world;
 
 import be.simonraes.breakout.actors.Ball;
-import be.simonraes.breakout.actors.BasicBlock;
 import be.simonraes.breakout.actors.Block;
 import be.simonraes.breakout.actors.Paddle;
 import be.simonraes.breakout.game.PlayerState;
 import be.simonraes.breakout.level.Level;
 import be.simonraes.breakout.level.Level1;
 import be.simonraes.breakout.level.Level2;
+import be.simonraes.breakout.powerup.FlameBall;
+import be.simonraes.breakout.powerup.Powerup;
 import be.simonraes.breakout.screen.GameScreen;
 import com.badlogic.gdx.math.Intersector;
+
+import java.util.ArrayList;
 
 /**
  * Controls all actors.
@@ -29,6 +32,8 @@ public class GameWorld {
     private GameState gameState;
     private PlayerState playerState;
 
+    private ArrayList<Powerup> powerups;
+
     public enum GameState {
         READYFORLAUNCH, // User can move paddle to choose launch location.
         RUNNING,        // Game is running.
@@ -37,22 +42,21 @@ public class GameWorld {
     }
 
     public GameWorld() {
+        playerState = new PlayerState();
         setupGame();
     }
 
     private void setupGame() {
         initObjects();
-        playerState = new PlayerState();
         setLevel();
-
     }
 
     private void initObjects() {
         gameState = GameState.READYFORLAUNCH;
+        powerups = new ArrayList<Powerup>();
 
         paddle = new Paddle(136 / 2 - 10, GameScreen.gameHeight - 20, PADDLE_WIDTH, PADDLE_HEIGHT);
         ball = new Ball(136 / 2, GameScreen.gameHeight - 20 - BALL_RADIUS, BALL_RADIUS);
-
     }
 
     private void setLevel() {
@@ -77,16 +81,9 @@ public class GameWorld {
             case RUNNING:
                 updateRunning(delta);
 
-                // Check number of alive balls
-                if (level.getAliveBlocks() <= 0) {
-                    levelComplete();
-                }
 
-                // Check if game is over
-                if (ball.getY() - ball.getRadius() > GameScreen.gameHeight) {
-                    gameState = GameState.READYFORLAUNCH;
-                    ball.stop();
-                }
+
+
 
 
                 break;
@@ -103,6 +100,11 @@ public class GameWorld {
 
     private void updateReadyForLaunch(float delta) {
         paddle.update(delta);
+
+        // Powerups can still be collected during READYFORLAUNCH.
+        updatePowerUps(delta);
+        checkPaddlePowerupsCollision();
+
         ball.moveWithPaddle(paddle.getX(), paddle.getY(), paddle.getWidth(), paddle.getHeight());
         ball.update(delta);
     }
@@ -110,10 +112,31 @@ public class GameWorld {
     private void updateRunning(float delta) {
         paddle.update(delta);
 
+        updatePowerUps(delta);
+
+        // Check number of alive balls
+        if (level.getAliveBlocks() <= 0) {
+            levelComplete();
+        }
+
+        // Check if game is over
+        if (ball.getY() - ball.getRadius() > GameScreen.gameHeight) {
+            gameState = GameState.READYFORLAUNCH;
+            ball.stop();
+        }
+
         checkBallPaddleCollision();
         checkBallTargetsCollision();
+        checkPaddlePowerupsCollision();
 
         ball.update(delta);
+    }
+
+    private void updatePowerUps(float delta){
+        // Update powerups
+        for (Powerup p : powerups) {
+            p.update(delta);
+        }
     }
 
     private void checkBallPaddleCollision() {
@@ -127,9 +150,41 @@ public class GameWorld {
             if (block.isAlive()) {
                 if (Intersector.overlaps(ball.getCircle(), block.getRectangle())) {
                     ball.blockCollision(block);
-                    block.hit();
+                    // Check if the hit block spawned a powerup.
+                    Powerup.PowerUpEffect spawnedPowerUp = block.hit();
+                    if (spawnedPowerUp != null) {
+                        switch (spawnedPowerUp) {
+                            case FLAMEBALL:
+                                powerups.add(new FlameBall(block.getX() + (block.getWidth() / 2), block.getY() + block.getHeight()));
+                            default:
+                                break;
+                        }
+                    }
+
                 }
             }
+        }
+    }
+
+    private void checkPaddlePowerupsCollision() {
+        for (Powerup p : (ArrayList<Powerup>) powerups.clone()) {
+            if (Intersector.overlaps(p.getCircle(), paddle.getRectangle())) {
+                activatePowerUp(p);
+                powerups.remove(p);
+            }
+        }
+    }
+
+    private void activatePowerUp(Powerup p) {
+        switch (p.getPowerUpTarget()) {
+            case BALL:
+                ball.applyPowerUp(p);
+                break;
+            case PADDLE:
+                paddle.applyPowerUp(p);
+                break;
+            default:
+                break;
         }
     }
 
@@ -160,5 +215,9 @@ public class GameWorld {
 
     public GameState getGameState() {
         return gameState;
+    }
+
+    public ArrayList<Powerup> getPowerups() {
+        return powerups;
     }
 }

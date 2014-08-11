@@ -15,7 +15,7 @@ public abstract class Level {
     protected int[][] blockInts;
     private ArrayList<Block> blockObjects;
     private final int BLOCK_WIDTH = 10;
-    private final int BLOCK_HEIGHT = 10;
+    private final int BLOCK_HEIGHT = 7;
     private final int BLOCK_HORIZONTAL_PADDING = 2;
     private final int BLOCK_TOP_PADDING = 15;
     private final int BLOCK_VERTICAL_PADDING = 2;

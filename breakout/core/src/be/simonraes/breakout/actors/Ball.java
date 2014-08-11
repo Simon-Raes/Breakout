@@ -1,8 +1,12 @@
 package be.simonraes.breakout.actors;
 
+import be.simonraes.breakout.powerup.Powerup;
 import be.simonraes.breakout.screen.GameScreen;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Simon Raes on 7/08/2014.
@@ -18,6 +22,8 @@ public class Ball {
     private final int LAUNCH_ANGLE = -60;
     private final int MAX_X_DISTANCE_AFTER_PADDLE_HIT = 400;
 
+    private HashMap<Powerup.PowerUpEffect, Float> activeEffects;
+
 
     private int radius;
 
@@ -26,6 +32,8 @@ public class Ball {
         previousPosition = new Vector2(0, 0);
         position = new Vector2(xPosition, yPosition);
         velocity = new Vector2(0, 0);
+
+        activeEffects = new HashMap<Powerup.PowerUpEffect, Float>();
     }
 
     public void update(float delta) {
@@ -46,6 +54,15 @@ public class Ball {
             velocity.y = -velocity.y;
         }
 
+        // Update effects
+        for (Map.Entry<Powerup.PowerUpEffect, Float> entry : activeEffects.entrySet()) {
+            if (entry.getValue() <= 0) {
+                activeEffects.remove(entry.getKey());
+            } else {
+                entry.setValue(entry.getValue() - delta);
+            }
+        }
+
         // Update ball position
         position.add(velocity.cpy().scl(delta));
     }
@@ -63,14 +80,15 @@ public class Ball {
      * Redirects the ball based on where it hit the paddle.
      */
     public void paddleCollision(Paddle paddle) {
-        System.out.println("ballX " + position.x + ", paddX" + paddle.getX());
 
         if (position.x < paddle.getX()) {
-            position.x = paddle.getX() - 1;
+            position.x = paddle.getX() - radius - 1;
             reverseXVelocity();
         } else if (position.x > paddle.getX() + paddle.getWidth()) {
-            position.x = paddle.getX() + paddle.getWidth() + 1;
+            position.x = paddle.getX() + paddle.getWidth() + radius + 1;
             reverseXVelocity();
+        } else if (position.y > paddle.getY() + paddle.getHeight()) {
+
         } else {
             float difference = position.x - (paddle.getX() + (paddle.getWidth() / 2));
             float factor = difference / paddle.getWidth() / 2;
@@ -86,63 +104,28 @@ public class Ball {
 
     public void blockCollision(Block block) {
 
-        float brickX = block.getX();
-        float brickY = block.getY();
-        int brickWidth = block.getWidth();
-        int brickHeight = block.getHeight();
+        // Don't change direction if flameball powerup is active.
+        if (!activeEffects.containsKey(Powerup.PowerUpEffect.FLAMEBALL)) {
 
-        if (position.y < brickY) {
-            reverseYVelocity();
-            position.y = brickY - radius - 1;
-        } else if (position.y > brickY + brickHeight) {
-            reverseYVelocity();
-            position.y = brickY + brickHeight + radius + 1;
-        } else {
-            if (position.x < brickX) {
-                reverseXVelocity();
-                position.x = brickX - radius - 1;
-            } else if (position.x > brickX + brickWidth) {
-                reverseXVelocity();
-                position.x = brickX + brickWidth + radius + 1;
+            float brickX = block.getX();
+            float brickY = block.getY();
+            int brickWidth = block.getWidth();
+            int brickHeight = block.getHeight();
+
+            if (position.y < brickY) {
+                reverseYVelocity();
+                position.y = brickY - radius - 1;
+            } else if (position.y > brickY + brickHeight) {
+                reverseYVelocity();
+                position.y = brickY + brickHeight + radius + 1;
             } else {
-                // midPoint is inside or below the paddle, need to check angle
-//                float degrees = (float) ((Math.atan2(previousPosition.x - position.x, -(previousPosition.y - position.y)) * 180.0d / Math.PI));
-//                System.out.println("degrees:" + degrees);
-//
-//                float depth;
-//                if (velocity.y > 0) {
-//                    depth = position.y - paddleY;
-//                } else {
-//                    depth = paddleY + paddleHeight - position.y;
-//                }
-//                double impactPoint = depth * Math.tan(degrees);
-//
-//                double impactOnPaddle = position.x - brickX + impactPoint;
-//
-//                System.out.println("depth: " + depth);
-//                System.out.println("impactpoint relative to current position: " + impactPoint);
-//                System.out.println("impact on paddle " + impactOnPaddle);
-//
-//
-//                if (impactOnPaddle < 0) {
-//                    System.out.println("bouncing left");
-//                    velocity.x = -velocity.x;
-//                    position.x = brickX - radius - 1;
-//                } else if (impactOnPaddle > paddleWidth) {
-//                    System.out.println("bouncing right");
-//                    velocity.x = -velocity.x;
-//                    position.x = brickX + paddleWidth + radius + 1;
-//                } else {
-//                    System.out.println("bouncing up/down");
-//                    if (velocity.y < 0) {
-//                        position.y = paddleY + paddleHeight + radius + 1;
-//
-//                    } else {
-//                        position.y = paddleY - radius - 1;
-//
-//                    }
-//                    velocity.y = -velocity.y;
-//                }
+                if (position.x < brickX) {
+                    reverseXVelocity();
+                    position.x = brickX - radius - 1;
+                } else if (position.x > brickX + brickWidth) {
+                    reverseXVelocity();
+                    position.x = brickX + brickWidth + radius + 1;
+                }
             }
         }
     }
@@ -185,11 +168,11 @@ public class Ball {
         return new Circle(position.x, position.y, radius);
     }
 
-    public void blockSideCollision() {
-        velocity.x = -velocity.x;
+    public HashMap<Powerup.PowerUpEffect, Float> getActiveEffects() {
+        return activeEffects;
     }
 
-    public void blockTopOrBottomCollision() {
-        velocity.y = -velocity.y;
+    public void applyPowerUp(Powerup p) {
+        activeEffects.put(p.getPowerUpEffect(), (float) p.getEffectDuration());
     }
 }

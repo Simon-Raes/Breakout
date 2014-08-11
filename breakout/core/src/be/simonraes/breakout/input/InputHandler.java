@@ -12,13 +12,14 @@ public class InputHandler implements InputProcessor {
 
     private GameWorld world;
     private boolean leftPressed, rightPressed;
-    private float scaleFactorX;
-    private float scaleFactorY;
+//    private float scaleFactorX;
+//    private float scaleFactorY;
 
-    public InputHandler(GameWorld world, float scaleFactorX, float scaleFactorY) {
+    private float lastTouchDownX, lastTouchDownY;
+
+    public InputHandler(GameWorld world) {
         this.world = world;
-        this.scaleFactorX = scaleFactorX;
-        this.scaleFactorY = scaleFactorY;
+
     }
 
     public void update() {
@@ -78,32 +79,39 @@ public class InputHandler implements InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
-        System.out.println("touch at " + screenX);
+        lastTouchDownX = screenX;
+        lastTouchDownY = screenY;
+
+        // Todo: find a way to let user move paddle before launching (both use single touch now).
 
 
-        screenX = scaleX(screenX);
-        screenY = scaleY(screenY);
-
-        System.out.println("scaled touch point " + screenX);
-        System.out.println("gameWidth " + GameScreen.gameWidth);
-        System.out.println("screenwidht" + GameScreen.screenWidth);
+        if (screenX < GameScreen.screenWidth / 2) {
+            leftPressed = true;
+//            return true;
+        } else {
+            rightPressed = true;
+//            return true;
+        }
 
         if (world.getGameState() == GameWorld.GameState.READYFORLAUNCH) {
-            world.setGameState(GameWorld.GameState.RUNNING);
-            world.getBall().launch();
+            System.out.println("ready for launch");
+            System.out.println(leftPressed+" "+rightPressed);
+            if(leftPressed && rightPressed){
+                world.setGameState(GameWorld.GameState.RUNNING);
+                world.getBall().launch();
+            }
+
         } else if (world.getGameState() == GameWorld.GameState.LEVELCOMPLETE) {
+            System.out.println("level complete");
+
             world.startNextLevel();
         } else if (world.getGameState() == GameWorld.GameState.GAMEOVER) {
+            System.out.println("game over");
+
             world.restart();
-        } else if (world.getGameState() == GameWorld.GameState.RUNNING) {
-            if (screenX < GameScreen.gameWidth / 2) {
-                leftPressed = true;
-                return true;
-            } else {
-                rightPressed = true;
-                return true;
-            }
         }
+
+
 
         return false;
     }
@@ -111,10 +119,12 @@ public class InputHandler implements InputProcessor {
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 
-        screenX = scaleX(screenX);
-        screenY = scaleY(screenY);
+        // Todo: input bug here:
+        // If user presses down on left side, drags over to right side and releases there it will count as a
+        // right-up, causing the left to get stuck in the pressed state until a touchUp is registered in that
+        // area.
 
-        if (screenX < GameScreen.gameWidth / 2) {
+        if (screenX < GameScreen.screenWidth / 2) {
             leftPressed = false;
             return true;
         } else {
@@ -122,7 +132,7 @@ public class InputHandler implements InputProcessor {
             return true;
         }
 
-//        return false;
+        //return false;
     }
 
     @Override
@@ -140,11 +150,5 @@ public class InputHandler implements InputProcessor {
         return false;
     }
 
-    private int scaleX(int screenX) {
-        return (int) (screenX / scaleFactorX);
-    }
 
-    private int scaleY(int screenY) {
-        return (int) (screenY / scaleFactorY);
-    }
 }
