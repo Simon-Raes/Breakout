@@ -2,6 +2,7 @@ package be.simonraes.breakout.level;
 
 import be.simonraes.breakout.block.BasicBlock;
 import be.simonraes.breakout.block.Block;
+import be.simonraes.breakout.block.ExplodingBlock;
 import be.simonraes.breakout.block.StrongBlock;
 import be.simonraes.breakout.screen.GameScreen;
 
@@ -27,40 +28,52 @@ public abstract class Level {
 
         for (int y = 0; y < blockInts.length; y++) {
             for (int x = 0; x < blockInts[y].length; x++) {
+
+                int xPos = x * BLOCK_HORIZONTAL_PADDING + getSidePadding() + x * BLOCK_WIDTH;
+                int yPos = y * BLOCK_VERTICAL_PADDING + BLOCK_VERTICAL_PADDING+BLOCK_TOP_PADDING + y * BLOCK_HEIGHT;
+
                 switch (blockInts[y][x]){
                     case 1:
-                        addBasicBlock(x, y);
+                        addBasicBlock(xPos, yPos);
                         break;
                     case 2:
-                        addStrongBlock(x, y);
+                        addStrongBlock(xPos, yPos);
+                        break;
+                    case 3:
+                        addExplodingBlock(xPos,yPos);
                         break;
                 }
             }
         }
     }
 
-    private void addBasicBlock(int x, int y){
-        int xPos = x * BLOCK_HORIZONTAL_PADDING + getSidePadding() + x * BLOCK_WIDTH;
-        int yPos = y * BLOCK_VERTICAL_PADDING + BLOCK_VERTICAL_PADDING+BLOCK_TOP_PADDING + y * BLOCK_HEIGHT;
+
+
+    private void addBasicBlock(int xPos, int yPos){
 
         blockObjects.add(new BasicBlock(
                 xPos, yPos,
                 BLOCK_WIDTH,
                 BLOCK_HEIGHT));
         numberOfBlocksInLevel++;
-//        aliveBlocks++;
     }
 
-    private void addStrongBlock(int x, int y){
-        int xPos = x * BLOCK_HORIZONTAL_PADDING + getSidePadding() + x * BLOCK_WIDTH;
-        int yPos = y * BLOCK_VERTICAL_PADDING + BLOCK_VERTICAL_PADDING+BLOCK_TOP_PADDING + y * BLOCK_HEIGHT;
+    private void addStrongBlock(int xPos, int yPos){
 
         blockObjects.add(new StrongBlock(
                 xPos, yPos,
                 BLOCK_WIDTH,
                 BLOCK_HEIGHT));
         numberOfBlocksInLevel++;
-//        aliveBlocks++;
+    }
+
+    private void addExplodingBlock(int xPos, int yPos) {
+
+        blockObjects.add(new ExplodingBlock(
+                xPos, yPos,
+                BLOCK_WIDTH,
+                BLOCK_HEIGHT));
+        numberOfBlocksInLevel++;
     }
 
     private int getSidePadding() {
@@ -82,7 +95,7 @@ public abstract class Level {
         return numberOfBlocksInLevel;
     }
 
-    public int getAliveBlocks() {
+    public int getNumberOfAliveBlocks() {
         int aliveBlocks = 0;
         for(Block b : blockObjects){
             if(b.isAlive()){

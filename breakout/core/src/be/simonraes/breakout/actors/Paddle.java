@@ -1,6 +1,6 @@
 package be.simonraes.breakout.actors;
 
-import be.simonraes.breakout.powerup.Powerup;
+import be.simonraes.breakout.powerup.PowerUp;
 import be.simonraes.breakout.screen.GameScreen;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -105,7 +105,7 @@ public class Paddle {
         return new Rectangle(position.x, position.y, width, height);
     }
 
-    public void applyPowerUp(Powerup p) {
+    public void applyPowerUp(PowerUp p) {
 
     }
 }

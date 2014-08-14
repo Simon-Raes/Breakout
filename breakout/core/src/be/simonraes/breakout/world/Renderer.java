@@ -1,11 +1,9 @@
 package be.simonraes.breakout.world;
 
 import be.simonraes.breakout.actors.Ball;
-import be.simonraes.breakout.actors.Paddle;
 import be.simonraes.breakout.block.BasicBlock;
 import be.simonraes.breakout.block.Block;
-import be.simonraes.breakout.block.StrongBlock;
-import be.simonraes.breakout.powerup.Powerup;
+import be.simonraes.breakout.powerup.PowerUp;
 import be.simonraes.breakout.screen.GameScreen;
 import be.simonraes.breakout.util.AssetLoader;
 import com.badlogic.gdx.Gdx;
@@ -83,21 +81,8 @@ public class Renderer {
         // Draw blocks
         for (Block block : world.getLevel().getBlocks()) {
             if (block.isAlive()) {
-                if (block instanceof BasicBlock) {
-                    shapeRenderer.setColor(Color.YELLOW);
-                } else if (block instanceof StrongBlock) {
-                    switch (block.getHitPoints()) {
-                        case 3:
-                            shapeRenderer.setColor(Color.BLACK);
-                            break;
-                        case 2:
-                            shapeRenderer.setColor(Color.DARK_GRAY);
-                            break;
-                        case 1:
-                            shapeRenderer.setColor(Color.LIGHT_GRAY);
-                            break;
-                    }
-                }
+                shapeRenderer.setColor(block.getTexture());
+
                 shapeRenderer.rect(block.getX(), block.getY(), block.getWidth(), block.getHeight());
             }
         }
@@ -125,14 +110,14 @@ public class Renderer {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
         // Render powerups
-        for (Powerup p : world.getFallingPowerUps()) {
+        for (PowerUp p : world.getFallingPowerUps()) {
             shapeRenderer.setColor(p.getTexture());
             shapeRenderer.circle(p.getPosition().x, p.getPosition().y, p.getRadius());
         }
 
         // Render ball
         for (Ball ball : world.getBalls()) {
-            if (ball.getActiveEffects().containsKey(Powerup.PowerUpEffect.FLAMEBALL)) {
+            if (ball.getActiveEffects().containsKey(PowerUp.PowerUpEffect.FLAMEBALL)) {
                 shapeRenderer.setColor(Color.ORANGE);
             } else {
                 shapeRenderer.setColor(Color.CYAN);

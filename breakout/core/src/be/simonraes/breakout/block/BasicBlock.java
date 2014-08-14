@@ -1,6 +1,7 @@
 package be.simonraes.breakout.block;
 
-import be.simonraes.breakout.powerup.Powerup;
+import be.simonraes.breakout.powerup.PowerUp;
+import com.badlogic.gdx.graphics.Color;
 
 /**
  * A basic block.
@@ -9,12 +10,12 @@ import be.simonraes.breakout.powerup.Powerup;
 public class BasicBlock extends Block {
 
     public BasicBlock(float xPosition, float yPosition, int width, int height) {
-        super(xPosition, yPosition, width, height);
+        super(xPosition, yPosition, width, height, Color.YELLOW);
     }
 
     @Override
     protected void setPowerups() {
-        containedPowerups.put(Powerup.PowerUpEffect.FLAMEBALL, 5);
-        containedPowerups.put(Powerup.PowerUpEffect.EXTRABALL, 5);
+        containedPowerups.put(PowerUp.PowerUpEffect.FLAMEBALL, 5);
+        containedPowerups.put(PowerUp.PowerUpEffect.EXTRABALL, 5);
     }
 }

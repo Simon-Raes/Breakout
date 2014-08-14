@@ -1,6 +1,7 @@
 package be.simonraes.breakout.block;
 
-import be.simonraes.breakout.powerup.Powerup;
+import be.simonraes.breakout.powerup.*;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -17,18 +18,21 @@ public abstract class Block {
     protected int hitPoints;
 
     protected boolean isAlive;
+    private Color texture;
 
     /**
      * Powerups that can spawn when this block is destroyed. (BlockType, SpawnChance)
      */
-    protected HashMap<Powerup.PowerUpEffect, Integer> containedPowerups;
+    protected HashMap<PowerUp.PowerUpEffect, Integer> containedPowerups;
 
-    public Block(float xPosition, float yPosition, int width, int height) {
+    public Block(float xPosition, float yPosition, int width, int height, Color texture) {
         position = new Vector2(xPosition, yPosition);
         this.width = width;
         this.height = height;
+        this.texture = texture;
+
         isAlive = true;
-        containedPowerups = new HashMap<Powerup.PowerUpEffect, Integer>();
+        containedPowerups = new HashMap<PowerUp.PowerUpEffect, Integer>();
 
         hitPoints = 1;
 
@@ -37,7 +41,7 @@ public abstract class Block {
 
     protected abstract void setPowerups();
 
-    public Powerup.PowerUpEffect hit() {
+    public PowerUp hit() {
         hitPoints--;
         if (hitPoints <= 0) {
             isAlive = false;
@@ -47,16 +51,29 @@ public abstract class Block {
         return null;
     }
 
-    private Powerup.PowerUpEffect getSpawnedPowerUp() {
+    private PowerUp getSpawnedPowerUp() {
         Random random = new Random();
         int randomValue = random.nextInt(100) + 1;
-        for (Map.Entry<Powerup.PowerUpEffect, Integer> entry : containedPowerups.entrySet()) {
+        for (Map.Entry<PowerUp.PowerUpEffect, Integer> entry : containedPowerups.entrySet()) {
 
             randomValue -= entry.getValue();
             if (randomValue <= 0) {
-                return entry.getKey();
+
+                switch (entry.getKey()) {
+                    case FLAMEBALL:
+                        return new FlameBall(getX() + (getWidth() / 2), getY() + getHeight());
+                    case EXTRABALL:
+                        return new ExtraBall(getX() + (getWidth() / 2), getY() + getHeight());
+                    case EXTRALIFE:
+                        return new ExtraLife(getX() + (getWidth() / 2), getY() + getHeight());
+                    case EXPLODEBRICK:
+                        return new Explosion(getX() + (getWidth() / 2), getY() + (getHeight() / 2));
+                    default:
+                        return null;
+                }
             }
         }
+
         return null;
     }
 
@@ -86,5 +103,9 @@ public abstract class Block {
 
     public int getHitPoints() {
         return hitPoints;
+    }
+
+    public Color getTexture(){
+        return texture;
     }
 }

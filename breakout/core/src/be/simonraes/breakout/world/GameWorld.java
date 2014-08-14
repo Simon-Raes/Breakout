@@ -7,10 +7,7 @@ import be.simonraes.breakout.game.PlayerState;
 import be.simonraes.breakout.level.Level;
 import be.simonraes.breakout.level.Level1;
 import be.simonraes.breakout.level.Level2;
-import be.simonraes.breakout.powerup.ExtraBall;
-import be.simonraes.breakout.powerup.ExtraLife;
-import be.simonraes.breakout.powerup.FlameBall;
-import be.simonraes.breakout.powerup.Powerup;
+import be.simonraes.breakout.powerup.*;
 import be.simonraes.breakout.screen.GameScreen;
 import com.badlogic.gdx.math.Intersector;
 
@@ -34,7 +31,7 @@ public class GameWorld {
 
     private PlayerState playerState;
 
-    private ArrayList<Powerup> fallingPowerUps;
+    private ArrayList<PowerUp> fallingPowerUps;
     private ArrayList<Ball> balls;
 
 
@@ -60,7 +57,7 @@ public class GameWorld {
 
     private void setActors() {
         gameState = GameState.READYFORLAUNCH;
-        fallingPowerUps = new ArrayList<Powerup>();
+        fallingPowerUps = new ArrayList<PowerUp>();
 
         paddle = new Paddle(136 / 2 - 10, GameScreen.gameHeight - 20, PADDLE_WIDTH, PADDLE_HEIGHT);
         balls = new ArrayList<Ball>();
@@ -159,13 +156,14 @@ public class GameWorld {
         }
     }
 
+    /**Updates the position of falling powerUps.*/
     private void updatePowerUps(float delta) {
-        // Update fallingPowerUps
-        for (Powerup p : fallingPowerUps) {
+        for (PowerUp p : fallingPowerUps) {
             p.update(delta);
         }
     }
 
+    /**Checks if the ball hit the paddle.*/
     private void checkBallPaddleCollision() {
         for (Ball ball : balls) {
             if (Intersector.overlaps(ball.getCircle(), paddle.getRectangle())) {
@@ -174,41 +172,44 @@ public class GameWorld {
         }
     }
 
+    /**Checks if the ball hits a target block.*/
     private void checkBallTargetsCollision() {
         for (Block block : level.getBlocks()) {
             if (block.isAlive()) {
                 for (Ball ball : balls) {
                     if (Intersector.overlaps(ball.getCircle(), block.getRectangle())) {
-                        ball.blockCollision(block);
-                        // Hit the block and check if it released a powerup.
-                        Powerup.PowerUpEffect effect = block.hit();
-                        addPowerUp(effect, block);
+                        hitBrick(ball, block);
                     }
                 }
             }
         }
     }
 
-    private void addPowerUp(Powerup.PowerUpEffect spawnedPowerUp, Block block) {
+
+    private void hitBrick(Ball ball, Block block){
+        if(ball!=null){
+            ball.blockCollision(block);
+        }
+        // Hit the block and check if it released a powerup.
+        if(block.isAlive()){
+            PowerUp powerUp = block.hit();
+            addPowerUp(powerUp);
+        }
+
+    }
+
+    private void addPowerUp(PowerUp spawnedPowerUp) {
         if (spawnedPowerUp != null) {
-            switch (spawnedPowerUp) {
-                case FLAMEBALL:
-                    fallingPowerUps.add(new FlameBall(block.getX() + (block.getWidth() / 2), block.getY() + block.getHeight()));
-                    break;
-                case EXTRABALL:
-                    fallingPowerUps.add(new ExtraBall(block.getX() + (block.getWidth() / 2), block.getY() + block.getHeight()));
-                    break;
-                case EXTRALIFE:
-                    fallingPowerUps.add(new ExtraLife(block.getX() + (block.getWidth() / 2), block.getY() + block.getHeight()));
-                    break;
-                default:
-                    break;
+            if(spawnedPowerUp.getActivation() == PowerUp.PowerUpActivation.FALLING){
+                fallingPowerUps.add(spawnedPowerUp);
+            } else {
+                activatePowerUp(spawnedPowerUp);
             }
         }
     }
 
     private void checkPaddlePowerupsCollision() {
-        for (Powerup p : (ArrayList<Powerup>) fallingPowerUps.clone()) {
+        for (PowerUp p : (ArrayList<PowerUp>) fallingPowerUps.clone()) {
             if (Intersector.overlaps(p.getCircle(), paddle.getRectangle())) {
                 activatePowerUp(p);
                 fallingPowerUps.remove(p);
@@ -216,24 +217,30 @@ public class GameWorld {
         }
     }
 
-    private void activatePowerUp(Powerup p) {
-        switch (p.getPowerUpTarget()) {
+    private void activatePowerUp(PowerUp powerUp) {
+        switch (powerUp.getPowerUpTarget()) {
             case BALL:
                 for (Ball ball : balls) {
-                    ball.applyPowerUp(p);
+                    ball.applyPowerUp(powerUp);
                 }
                 break;
             case PADDLE:
-                paddle.applyPowerUp(p);
+                paddle.applyPowerUp(powerUp);
                 break;
             case GAME:
-                switch (p.getPowerUpEffect()) {
+                switch (powerUp.getPowerUpEffect()) {
                     case EXTRABALL:
                         balls.add(new Ball(paddle.getX() + (paddle.getWidth() / 2), paddle.getY(), BALL_RADIUS));
                         break;
                     case EXTRALIFE:
                         playerState.setLives(playerState.getLives() + 1);
                         break;
+                    case EXPLODEBRICK:
+                        for(Block block : level.getBlocks()){
+                            if(Intersector.overlaps(powerUp.getCircle(), block.getRectangle())){
+                                hitBrick(null, block);
+                            }
+                        }
                 }
                 break;
             default:
@@ -252,12 +259,17 @@ public class GameWorld {
         } else if (gameState == GameWorld.GameState.LIFEOVER) {
             restart();
         } else if (gameState == GameState.GAMEOVER) {
-            restart();
+            fullRestart();
         }
     }
 
 
     public void restart() {
+        setupGame();
+    }
+
+    public void fullRestart() {
+        playerState = new PlayerState(1, 3);
         setupGame();
     }
 
@@ -286,7 +298,7 @@ public class GameWorld {
         return gameState;
     }
 
-    public ArrayList<Powerup> getFallingPowerUps() {
+    public ArrayList<PowerUp> getFallingPowerUps() {
         return fallingPowerUps;
     }
 

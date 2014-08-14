@@ -1,7 +1,7 @@
 package be.simonraes.breakout.actors;
 
 import be.simonraes.breakout.block.Block;
-import be.simonraes.breakout.powerup.Powerup;
+import be.simonraes.breakout.powerup.PowerUp;
 import be.simonraes.breakout.screen.GameScreen;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
@@ -23,7 +23,7 @@ public class Ball {
     private final int LAUNCH_ANGLE = -60;
     private final int MAX_X_DISTANCE_AFTER_PADDLE_HIT = 400;
 
-    private HashMap<Powerup.PowerUpEffect, Float> activeEffects;
+    private HashMap<PowerUp.PowerUpEffect, Float> activeEffects;
 
 
     private int radius;
@@ -34,7 +34,7 @@ public class Ball {
         position = new Vector2(xPosition, yPosition);
         velocity = new Vector2(0, 0);
 
-        activeEffects = new HashMap<Powerup.PowerUpEffect, Float>();
+        activeEffects = new HashMap<PowerUp.PowerUpEffect, Float>();
     }
 
     public void update(float delta) {
@@ -56,7 +56,7 @@ public class Ball {
         }
 
         // Update effects
-        for (Map.Entry<Powerup.PowerUpEffect, Float> entry : activeEffects.entrySet()) {
+        for (Map.Entry<PowerUp.PowerUpEffect, Float> entry : activeEffects.entrySet()) {
             if (entry.getValue() <= 0) {
                 activeEffects.remove(entry.getKey());
             } else {
@@ -108,7 +108,7 @@ public class Ball {
     public void blockCollision(Block block) {
 
         // Don't change direction if flameball powerup is active.
-        if (!activeEffects.containsKey(Powerup.PowerUpEffect.FLAMEBALL)) {
+        if (!activeEffects.containsKey(PowerUp.PowerUpEffect.FLAMEBALL)) {
 
             float brickX = block.getX();
             float brickY = block.getY();
@@ -171,11 +171,11 @@ public class Ball {
         return new Circle(position.x, position.y, radius);
     }
 
-    public HashMap<Powerup.PowerUpEffect, Float> getActiveEffects() {
+    public HashMap<PowerUp.PowerUpEffect, Float> getActiveEffects() {
         return activeEffects;
     }
 
-    public void applyPowerUp(Powerup p) {
+    public void applyPowerUp(PowerUp p) {
         activeEffects.put(p.getPowerUpEffect(), (float) p.getEffectDuration());
     }
 }
